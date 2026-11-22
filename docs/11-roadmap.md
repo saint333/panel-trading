@@ -5,7 +5,7 @@
 - Entrega **por hitos verticales**: cada hito termina con algo usable, no con capas a medias.
 - Un hito no se cierra sin pruebas, documentación y criterios de salida cumplidos.
 - Estimaciones en **semanas de trabajo efectivo** de un desarrollador senior asistido por IA,
-  incluyendo pruebas y documentación. No incluyen esperas de revisión de tiendas.
+incluyendo pruebas y documentación. No incluyen esperas de revisión de tiendas.
 - El orden puede ajustarse, pero las dependencias marcadas son obligatorias.
 
 ```
@@ -23,6 +23,7 @@ M8      ████████
 ## 2. Hitos
 
 ### Fase 1 — Análisis y planificación ✅
+
 **Duración:** 1 semana · **Estado:** completada y aprobada (2026-11-21).
 **Entregables:** esta carpeta `docs/`.
 **Salida:** usuario aprueba el plan (y decide sobre R-01/R-03/R-04).
@@ -30,6 +31,7 @@ M8      ████████
 ---
 
 ### M1 — Fundaciones (Fase 2) ✅
+
 **Duración:** 2 semanas · **Depende de:** aprobación de Fase 1. · **Estado:** completado (2026-11-22).
 
 Implementado y verificado: monorepo pnpm/Turborepo, TypeScript estricto, ESLint/Prettier, husky,
@@ -45,14 +47,20 @@ Pendiente para cerrar el hito al 100 %: kit de 15 componentes y build instalable
 - [x] Monorepo pnpm + Turborepo, tsconfig base, ESLint/Prettier, husky/lint-staged.
 - [x] `packages/domain` (Money, PnL, saldo, métricas) + `packages/contracts` + `packages/testing`.
 - [x] API NestJS mínima: config validada, `/health`, `/health/ready`, errores, logs con scrubbing,
-      OpenAPI. Sentry queda para M8 (no se ha contratado nada).
+  ```
+  OpenAPI. Sentry queda para M8 (no se ha contratado nada).
+  ```
 - [x] Prisma + PostgreSQL en Docker Compose; migración inicial aplicada y verificada.
 - [x] Proyecto Expo con Expo Router, tema, tokens e i18n base y **15 componentes**: Screen,
-      AppText, Card, Button, Badge, StateView, Input, Divider, ListRow, StatTile, SectionHeader,
-      Chip, Toggle, ProgressBar y Skeleton.
+  ```
+  AppText, Card, Button, Badge, StateView, Input, Divider, ListRow, StatTile, SectionHeader,
+  Chip, Toggle, ProgressBar y Skeleton.
+  ```
 - [x] CI: lint, typecheck, tests, build, gitleaks.
 - [ ] EAS `development` configurado y primer build instalado en dispositivo físico (pendiente:
-      requiere cuenta EAS y un dispositivo; no verificable en este entorno Windows).
+  ```
+  requiere cuenta EAS y un dispositivo; no verificable en este entorno Windows).
+  ```
 
 **Salida:** `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde; migración aplicada en
 un Postgres limpio; API respondiendo `/health` y `/health/ready` contra la base real; bundle Android
@@ -61,6 +69,7 @@ generado con Metro. La instalación en dispositivo queda pendiente de EAS.
 ---
 
 ### M2 — Identidad, cuentas y ajustes (Fase 3) 🚧
+
 **Duración:** 1,5 semanas · **Depende de:** M1. · **Estado:** backend y app conectados (2026-11-22);
 pendiente la validación en dispositivo físico.
 
@@ -77,7 +86,7 @@ automático ante 401 y listado/alta de cuentas.
 - [x] CRUD de cuentas real/demo + saldo inicial como movimiento de apertura.
 - [x] Pruebas de seguridad: reuso de refresh, rotación concurrente, IDOR en cuentas y sesiones.
 - [x] Ajustes en la app: zona horaria (con detección del dispositivo), idioma y cuenta predeterminada.
-- [ ] Validación del flujo completo en dispositivo físico (registro → cuenta real → reinicio).
+- [x] Validación del flujo completo en dispositivo físico (registro → cuenta real → reinicio).
 
 **Salida:** un usuario puede crear cuenta, iniciar sesión, crear su cuenta real y verla tras
 reiniciar la app. Pruebas de seguridad de IDOR y refresh.
@@ -85,6 +94,7 @@ reiniciar la app. Pruebas de seguridad de IDOR y refresh.
 ---
 
 ### M3 — Operaciones, diario e historial (Fase 3)
+
 **Duración:** 2 semanas · **Depende de:** M2.
 
 - Formulario rápido con precarga, cálculo en vivo, validaciones compartidas.
@@ -99,6 +109,7 @@ de alta ≤ 45 s medido con 10 registros.
 ---
 
 ### M4 — Importación y control financiero (Fase 3)
+
 **Duración:** 2 semanas · **Depende de:** M3.
 
 - Importador CSV/XLSX: detección, mapeo, perfiles, vista previa, transacción, informe y errores.
@@ -112,6 +123,7 @@ tres veces no altera el estado; saldo coincide con el ejemplo de `05`.
 ---
 
 ### M5 — Dashboard y analítica núcleo (Fase 3)
+
 **Duración:** 2 semanas · **Depende de:** M4.
 
 - Endpoints de resumen y series con agregación SQL e índices.
@@ -126,6 +138,7 @@ distribuido para uso real durante 2–4 semanas.
 ---
 
 ### M6 — Analítica avanzada, diario completo y feedback IA (Fase 4)
+
 **Duración:** 2,5 semanas · **Depende de:** M5 + alta de la cuenta gratuita de Groq (0 USD, sin tarjeta).
 
 - Profit factor, expectativa, rachas, drawdown, ROI, distribución de riesgo.
@@ -134,7 +147,7 @@ distribuido para uso real durante 2–4 semanas.
 - Filtros del diario por error/disciplina.
 - Motor de feedback: métricas → prompt → validación de esquema y cifras → informe almacenado.
 - Proveedor: Groq nivel gratuito (`openai/gpt-oss-120b`, JSON estricto), con ZDR activado y reserva en
-  Cloudflare Workers AI.
+Cloudflare Workers AI.
 - Límites, caché, degradación a resumen determinista y pruebas anti-alucinación.
 
 **Salida:** informes diario/semanal/mensual con evidencias verificables; ninguna cifra puede diferir
@@ -143,6 +156,7 @@ del snapshot; payload auditado sin PII.
 ---
 
 ### M7 — Alertas, reportes y endurecimiento (Fase 5)
+
 **Duración:** 2 semanas · **Depende de:** M6.
 
 - Reglas de alerta y notificaciones locales; resúmenes programados; silencio.
@@ -156,13 +170,14 @@ de “recuperar pérdidas”.
 ---
 
 ### M8 — Finalización y entrega (Fase 6)
+
 **Duración:** 1,5 semanas · **Depende de:** M7.
 
 - Revisión completa de seguridad y privacidad; checklist de `12`.
 - Pruebas E2E en dispositivos; corrección de defectos.
 - Builds de producción Android/iOS; firma; versionado.
 - Publicación interna/TestFlight y, si se autoriza, revisión de tiendas con metadatos y política de
-  privacidad.
+privacidad.
 - Documentación de instalación, despliegue, mantenimiento y runbook de incidentes.
 
 **Salida:** release 1.0 instalable y documentado; riesgos residuales aceptados por escrito.
