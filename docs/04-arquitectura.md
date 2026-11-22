@@ -262,7 +262,16 @@ Dependencias permitidas: `trades → accounts`, `analytics → trades`, `feedbac
 ### 7.1 Ejemplos de recursos
 
 ```
+POST   /v1/auth/register
+POST   /v1/auth/login
+POST   /v1/auth/refresh
+POST   /v1/auth/logout
+POST   /v1/auth/change-password
 GET    /v1/me
+GET    /v1/me/settings
+PATCH  /v1/me/settings
+GET    /v1/me/sessions
+DELETE /v1/me/sessions/:id
 GET    /v1/accounts
 POST   /v1/accounts
 GET    /v1/trades?from=...&to=...&result=WIN&cursor=...&limit=50

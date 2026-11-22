@@ -12,6 +12,13 @@ La documentación de producto, arquitectura y decisiones vive en [`docs/`](docs/
 
 ## Estado
 
+**M2 — Identidad, cuentas y ajustes** en curso (2026-11-22):
+
+- Registro y login con Argon2id, JWT de acceso de 15 min y refresh rotativo con detección de reuso.
+- Sesiones por dispositivo (`/v1/me/sessions`), cambio de contraseña y límite de peticiones.
+- Cuentas real/demo con saldo inicial registrado como movimiento de apertura; archivado lógico.
+- App: acceso, registro con aviso legal, tokens en SecureStore y listado/alta de cuentas.
+
 **M1 — Fundaciones completado** (2026-11-22):
 
 - Monorepo, TypeScript estricto, ESLint/Prettier, husky y CI.

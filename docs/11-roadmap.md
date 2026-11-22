@@ -60,14 +60,24 @@ generado con Metro. La instalación en dispositivo queda pendiente de EAS.
 
 ---
 
-### M2 — Identidad, cuentas y ajustes (Fase 3)
-**Duración:** 1,5 semanas · **Depende de:** M1.
+### M2 — Identidad, cuentas y ajustes (Fase 3) 🚧
+**Duración:** 1,5 semanas · **Depende de:** M1. · **Estado:** backend y app conectados (2026-11-22);
+pendiente la validación en dispositivo físico.
 
-- Registro, login, refresh rotativo, revocación, cambio de contraseña, rate limits.
-- Sesiones por dispositivo y auditoría.
-- Onboarding con disclaimer y detección de zona horaria.
-- CRUD de cuentas real/demo + saldo inicial como movimiento de apertura.
-- Ajustes: tema, zona horaria, divisa, idioma (solo es).
+Implementado: Argon2id para contraseñas, JWT de acceso de 15 min, refresh opaco rotativo con detección
+de reuso y revocación masiva, sesiones por dispositivo con IP hasheada, cambio de contraseña que cierra
+las demás sesiones, límite de peticiones por ruta (`@nestjs/throttler`), `/me` con ajustes, cuentas
+real/demo con saldo de apertura como movimiento `DEPOSIT`, archivo y restauración lógica, y en la app
+pantallas de acceso/registro con aviso legal, zona horaria del sistema, tokens en SecureStore, refresco
+automático ante 401 y listado/alta de cuentas.
+
+- [x] Registro, login, refresh rotativo, revocación, cambio de contraseña, rate limits.
+- [x] Sesiones por dispositivo y auditoría (user agent + hash de IP, nunca IP en claro).
+- [x] Onboarding con disclaimer y detección de zona horaria.
+- [x] CRUD de cuentas real/demo + saldo inicial como movimiento de apertura.
+- [x] Pruebas de seguridad: reuso de refresh, rotación concurrente, IDOR en cuentas y sesiones.
+- [x] Ajustes en la app: zona horaria (con detección del dispositivo), idioma y cuenta predeterminada.
+- [ ] Validación del flujo completo en dispositivo físico (registro → cuenta real → reinicio).
 
 **Salida:** un usuario puede crear cuenta, iniciar sesión, crear su cuenta real y verla tras
 reiniciar la app. Pruebas de seguridad de IDOR y refresh.
