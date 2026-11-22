@@ -17,8 +17,15 @@ export const es = {
       stateOk: 'API operativa',
       stateError: 'No se pudo contactar con la API',
       stateLoading: 'Comprobando la API…',
+      uptime: 'Tiempo activo',
+      version: 'Versión',
       disclaimer:
         'Herramienta de registro y análisis. No ejecuta operaciones ni se conecta a Binomo.',
+    },
+    settings: {
+      appearance: 'Apariencia',
+      darkTheme: 'Tema oscuro',
+      darkThemeDescription: 'Sigue el sistema si no lo cambias',
     },
   },
 } as const;

@@ -36,8 +36,8 @@ Implementado y verificado: monorepo pnpm/Turborepo, TypeScript estricto, ESLint/
 CI con Postgres y gitleaks; `packages/domain` con dinero, PnL, saldo y métricas (55 pruebas,
 cobertura 99 %); `packages/contracts` (Zod) y `packages/testing`; API NestJS con `/health`,
 `/health/ready`, OpenAPI, errores con `requestId` y logs con scrubbing; esquema Prisma de 17 tablas,
-migración con CHECKs aplicada en Postgres 16; app Expo con Router, tema e i18n y bundle Android
-generado con Metro.
+migración con CHECKs aplicada en Postgres 16; app Expo con Router, tema, i18n y 15 componentes de UI,
+con bundle Android generado con Metro.
 
 Pendiente para cerrar el hito al 100 %: kit de 15 componentes y build instalable en dispositivo
 (requiere EAS o un equipo con Android Studio/Xcode).
@@ -47,8 +47,9 @@ Pendiente para cerrar el hito al 100 %: kit de 15 componentes y build instalable
 - [x] API NestJS mínima: config validada, `/health`, `/health/ready`, errores, logs con scrubbing,
       OpenAPI. Sentry queda para M8 (no se ha contratado nada).
 - [x] Prisma + PostgreSQL en Docker Compose; migración inicial aplicada y verificada.
-- [x] Proyecto Expo con Expo Router, tema, tokens e i18n base (6 componentes; el kit de 15 se
-      completa en M2–M3 según se necesiten).
+- [x] Proyecto Expo con Expo Router, tema, tokens e i18n base y **15 componentes**: Screen,
+      AppText, Card, Button, Badge, StateView, Input, Divider, ListRow, StatTile, SectionHeader,
+      Chip, Toggle, ProgressBar y Skeleton.
 - [x] CI: lint, typecheck, tests, build, gitleaks.
 - [ ] EAS `development` configurado y primer build instalado en dispositivo físico (pendiente:
       requiere cuenta EAS y un dispositivo; no verificable en este entorno Windows).

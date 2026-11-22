@@ -19,10 +19,10 @@ La documentación de producto, arquitectura y decisiones vive en [`docs/`](docs/
 - `@binomo/contracts`: esquemas Zod compartidos.
 - API NestJS con `/health`, `/health/ready`, OpenAPI en `/v1/docs`, errores con `requestId` y logs sin PII.
 - Esquema Prisma del MVP (17 tablas), migración con restricciones de integridad y Postgres en Docker.
-- App Expo con Expo Router, tema claro/oscuro, i18n español y pantalla de estado de la API.
+- App Expo con Expo Router, tema claro/oscuro, i18n español y kit de 15 componentes de UI.
+  La pantalla de inicio comprueba la API y muestra estados de carga, error y éxito.
 
-Pendiente de M1: kit completo de 15 componentes y build instalable en dispositivo
-(requiere EAS o un equipo con Android Studio/Xcode).
+Pendiente de M1: build instalable en dispositivo (requiere EAS o un equipo con Android Studio/Xcode).
 
 ## Requisitos
 
