@@ -9,6 +9,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose stop postgres",
+    "stop:dev": "node scripts/stop-dev.mjs",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",

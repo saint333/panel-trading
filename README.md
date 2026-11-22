@@ -37,17 +37,20 @@ corepack enable
 pnpm install
 
 # Base de datos
-docker compose up -d postgres
+pnpm db:up
 
-# API
+# Variables y esquema (solo la primera vez)
 cp apps/api/.env.example apps/api/.env
 pnpm --filter @binomo/api prisma:migrate
-pnpm --filter @binomo/api dev
+
+# API (3000) + Metro (8081) a la vez
+pnpm dev
 ```
 
 - API: `http://localhost:3000/health` · Swagger: `http://localhost:3000/v1/docs`
-- App: `pnpm --filter @binomo/mobile start`
-  - En un dispositivo físico, define `EXPO_PUBLIC_API_URL=http://<IP-de-tu-PC>:3000`.
+- App: abre `exp://<IP-de-tu-PC>:8081` en Expo Go (SDK 54). La app toma
+  `EXPO_PUBLIC_API_URL` de `apps/mobile/.env`; si la IP del PC cambia, actualízala allí.
+- Parar: `Ctrl+C` y `pnpm db:down`.
 
 ## Estructura
 
@@ -73,6 +76,10 @@ Regla: **la lógica financiera solo existe en `packages/domain`**. Ni la API ni 
 | `pnpm lint`        | ESLint                                  |
 | `pnpm test`        | Pruebas (dominio y API)                 |
 | `pnpm test:domain` | Solo dominio, con cobertura             |
+| `pnpm dev`         | API y app a la vez, con recarga         |
+| `pnpm db:up`       | Levanta PostgreSQL en Docker            |
+| `pnpm db:down`     | Para PostgreSQL                         |
+| `pnpm stop:dev`    | Libera los puertos 3000 y 8081          |
 | `pnpm format`      | Prettier                                |
 
 ## Decisiones que no se negocian
