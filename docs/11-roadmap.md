@@ -57,10 +57,8 @@ Pendiente para cerrar el hito al 100 %: kit de 15 componentes y build instalable
   Chip, Toggle, ProgressBar y Skeleton.
   ```
 - [x] CI: lint, typecheck, tests, build, gitleaks.
-- [ ] EAS `development` configurado y primer build instalado en dispositivo físico (pendiente:
-  ```
-  requiere cuenta EAS y un dispositivo; no verificable en este entorno Windows).
-  ```
+- [x] EAS configurado con perfil `preview` (APK interno) y primer APK generado; la instalación en un
+  dispositivo físico queda pendiente de verificar en el móvil (ver `14-apk-android.md`).
 
 **Salida:** `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde; migración aplicada en
 un Postgres limpio; API respondiendo `/health` y `/health/ready` contra la base real; bundle Android
@@ -87,6 +85,17 @@ automático ante 401 y listado/alta de cuentas.
 - [x] Pruebas de seguridad: reuso de refresh, rotación concurrente, IDOR en cuentas y sesiones.
 - [x] Ajustes en la app: zona horaria (con detección del dispositivo), idioma y cuenta predeterminada.
 - [x] Validación del flujo completo en dispositivo físico (registro → cuenta real → reinicio).
+
+**Auditoría técnica (2026-11-22):** se corrigieron cuatro defectos encontrados al revisar M1/M2.
+(1) `pnpm typecheck` fallaba en el móvil porque los tipos de `process.env` solo llegaban por
+`expo-env.d.ts`, que está en `.gitignore`; ahora `tsconfig.json` incluye `expo/types` y la puerta de CI
+vuelve a pasar desde un clon limpio. (2) El guard de acceso solo validaba la firma del JWT, así que
+cerrar sesión o cambiar la contraseña no surtía efecto hasta 15 minutos después; ahora revalida la
+sesión (`revokedAt`, `expiresAt`, usuario) en cada petición y tiene pruebas propias. (3) La app
+borraba los tokens ante cualquier fallo al comprobar la sesión inicial, incluido quedarse sin red o
+un 5xx; ahora solo los borra si el servidor rechaza el refresh o el acceso. (4) Ninguna petición
+tiene timeout: se añadió un límite de 15 s para no dejar pantallas en “Cargando…” con una IP
+inalcanzable.
 
 **Salida:** un usuario puede crear cuenta, iniciar sesión, crear su cuenta real y verla tras
 reiniciar la app. Pruebas de seguridad de IDOR y refresh.

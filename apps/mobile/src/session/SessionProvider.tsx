@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import { clearTokens, loadTokens, saveTokens } from '../auth/token-storage';
 import { fetchMe, login, logout, register, type AuthResult, type AuthUser } from '../api/auth';
-import { setSessionExpiredHandler } from '../api/client';
+import { ApiError, SessionExpiredError, setSessionExpiredHandler } from '../api/client';
 
 type Status = 'loading' | 'signedOut' | 'signedIn';
 
@@ -57,9 +57,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!active) return;
         setUser(me.user);
         setStatus('signedIn');
-      } catch {
-        await clearTokens();
-        if (active) setStatus('signedOut');
+      } catch (cause) {
+        // Solo se cierra la sesión si el servidor la rechaza. Un fallo de red o
+        // un 5xx no debe borrar los tokens: la app reintenta al volver la API.
+        const rejected =
+          cause instanceof SessionExpiredError ||
+          (cause instanceof ApiError && cause.status === 401);
+
+        if (rejected) {
+          await clearTokens();
+          if (active) setStatus('signedOut');
+        } else if (active) {
+          setStatus('signedIn');
+        }
       }
     })();
 

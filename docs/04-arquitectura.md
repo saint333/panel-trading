@@ -255,7 +255,9 @@ Dependencias permitidas: `trades → accounts`, `analytics → trades`, `feedbac
   identificador de dominio (`TRADE_DUPLICATE`, `BALANCE_MISMATCH_REQUIRES_REASON`, …).
 - **Idempotencia:** `Idempotency-Key` obligatorio en `POST /v1/trades` y `POST /v1/imports`.
 - **Autorización:** JWT de acceso en `Authorization: Bearer`; el `userId` **siempre** sale del token,
-  nunca del body o de un query param.
+  nunca del body o de un query param. Cada petición autenticada revalida la sesión en base de datos
+  (no revocada y sin caducar), de forma que cerrar sesión, cambiar la contraseña o detectar reuso de
+  refresh invalida el acceso al instante y no al expirar el JWT.
 - **OpenAPI:** generado por NestJS y publicado en `/v1/docs` en entornos no productivos.
 - **Límites:** 100 req/min por usuario en lectura; 20 req/min en escritura; 10 req/hora en feedback.
 
