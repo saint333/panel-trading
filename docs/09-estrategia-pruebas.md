@@ -38,7 +38,7 @@ Tabla de escenarios que **deben** existir como pruebas automatizadas:
 |---|---|---|
 | F-01 | WIN stake 1 000, payout 8000 | `netPnl = 800` |
 | F-02 | WIN stake 1 000, payout 0 | `netPnl = 0` |
-| F-03 | WIN stake 333, payout 8333 | Redondeo half-up exacto: `278` |
+| F-03 | WIN stake 6, payout 7500 | Redondeo half-up exacto de 4,5: `5` |
 | F-04 | WIN stake 1, payout 1 | `0` (half-up de 0,0001) |
 | F-05 | LOSS stake 1 000, payout 8000 | `netPnl = -1000` (el payout no aplica) |
 | F-06 | DRAW stake 1 000 | `0` y no altera saldo |

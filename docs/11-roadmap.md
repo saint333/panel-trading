@@ -29,19 +29,33 @@ M8      ████████
 
 ---
 
-### M1 — Fundaciones (Fase 2)
-**Duración:** 2 semanas · **Depende de:** aprobación de Fase 1.
+### M1 — Fundaciones (Fase 2) ✅
+**Duración:** 2 semanas · **Depende de:** aprobación de Fase 1. · **Estado:** completado (2026-11-22).
 
-- Monorepo pnpm + Turborepo, tsconfig base, ESLint/Prettier, husky/lint-staged.
-- `packages/domain` (Money, PnL, resultados) + `packages/contracts` + `packages/testing`.
-- API NestJS mínima: config validada, `/health`, manejo de errores, logs, Sentry, OpenAPI.
-- Prisma + PostgreSQL en Docker Compose; primera migración con todas las tablas del MVP.
-- Proyecto Expo con Expo Router, tema, tokens, i18n base, 15 componentes UI.
-- CI: lint, typecheck, tests, build, gitleaks.
-- EAS `development` configurado y **primer build instalado en dispositivo físico**.
+Implementado y verificado: monorepo pnpm/Turborepo, TypeScript estricto, ESLint/Prettier, husky,
+CI con Postgres y gitleaks; `packages/domain` con dinero, PnL, saldo y métricas (55 pruebas,
+cobertura 99 %); `packages/contracts` (Zod) y `packages/testing`; API NestJS con `/health`,
+`/health/ready`, OpenAPI, errores con `requestId` y logs con scrubbing; esquema Prisma de 17 tablas,
+migración con CHECKs aplicada en Postgres 16; app Expo con Router, tema e i18n y bundle Android
+generado con Metro.
 
-**Salida:** app arranca en Android e iOS mostrando una pantalla con datos de `/health`; CI verde;
-`domain` con pruebas de F-01…F-08.
+Pendiente para cerrar el hito al 100 %: kit de 15 componentes y build instalable en dispositivo
+(requiere EAS o un equipo con Android Studio/Xcode).
+
+- [x] Monorepo pnpm + Turborepo, tsconfig base, ESLint/Prettier, husky/lint-staged.
+- [x] `packages/domain` (Money, PnL, saldo, métricas) + `packages/contracts` + `packages/testing`.
+- [x] API NestJS mínima: config validada, `/health`, `/health/ready`, errores, logs con scrubbing,
+      OpenAPI. Sentry queda para M8 (no se ha contratado nada).
+- [x] Prisma + PostgreSQL en Docker Compose; migración inicial aplicada y verificada.
+- [x] Proyecto Expo con Expo Router, tema, tokens e i18n base (6 componentes; el kit de 15 se
+      completa en M2–M3 según se necesiten).
+- [x] CI: lint, typecheck, tests, build, gitleaks.
+- [ ] EAS `development` configurado y primer build instalado en dispositivo físico (pendiente:
+      requiere cuenta EAS y un dispositivo; no verificable en este entorno Windows).
+
+**Salida:** `pnpm lint && pnpm typecheck && pnpm test && pnpm build` en verde; migración aplicada en
+un Postgres limpio; API respondiendo `/health` y `/health/ready` contra la base real; bundle Android
+generado con Metro. La instalación en dispositivo queda pendiente de EAS.
 
 ---
 

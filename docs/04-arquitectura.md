@@ -66,6 +66,9 @@ flowchart TB
 
 ## 4. Monorepo y estructura de carpetas (entregable 8)
 
+> Estructura **objetivo**. El árbol realmente creado en M1 está en el `README.md` de la raíz;
+> las carpetas se irán completando en los hitos M2–M6.
+
 ```
 panel-trading/
 ├─ apps/

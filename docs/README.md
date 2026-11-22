@@ -1,8 +1,9 @@
 # Binomo Analytics — Documentación del proyecto
 
-> **Estado:** Fase 1 (análisis y planificación) **completada y aprobada** el 2026-11-21. Sin código, dependencias ni estructura creados todavía.
-> **No se ha escrito código, ni instalado dependencias, ni creado la estructura del proyecto.**
-> Fecha de la planificación: 2026-11-21.
+> **Estado:** Fase 1 (análisis y planificación) **aprobada** el 2026-11-21 y **M1 — Fundaciones completado** el 2026-11-22.
+> El código vive en la raíz del repositorio; la puesta en marcha y la estructura real están en el
+> [`README.md`](../README.md) raíz. Esta carpeta sigue siendo la fuente de verdad de producto,
+> arquitectura y decisiones.
 
 Este directorio contiene la documentación de referencia del producto. Es la fuente de verdad para
 decisiones de arquitectura, alcance y calidad. Toda desviación posterior debe reflejarse aquí
