@@ -22,12 +22,13 @@ La URL de la API se **incrusta en el APK al compilar**. `apps/mobile/.env` no se
 
 ```json
 "env": {
-  "EXPO_PUBLIC_API_URL": "http://192.168.1.100:3000"
+  "EXPO_PUBLIC_API_URL": "http://192.168.15.17:3000"
 }
 ```
 
-1. Sustituye `192.168.1.100` por la IPv4 de tu PC en la Wi‑Fi (`ipconfig` en Windows → *Dirección IPv4*).
-   Usa la misma IP que ya tienes en `apps/mobile/.env`.
+1. En este equipo ya está puesta la IPv4 de la Wi‑Fi (`192.168.15.17`); `extra.apiUrl` de `app.json`
+   usa el mismo valor como respaldo. Si cambias de red, sustituye la IP por la que muestre
+   `ipconfig` en Windows → *Dirección IPv4* (y actualiza también `apps/mobile/.env`).
 2. El móvil y el PC deben estar en la **misma Wi‑Fi** (las redes de invitados aíslan clientes).
 3. Permite `node.exe` en el Firewall de Windows para redes privadas y comprueba desde el navegador
    del móvil que `http://<IP>:3000/health` responde.
@@ -44,6 +45,9 @@ npx --yes eas-cli@latest login        # cuenta gratuita en https://expo.dev/sign
 npx --yes eas-cli@latest init         # solo la primera vez: vincula el proyecto
 pnpm build:apk                        # equivale a: eas build -p android --profile preview
 ```
+
+La primera vez la CLI pregunta: crear el proyecto en tu cuenta (`init`), generar un *keystore*
+(firma) de Android y confirmar el perfil `preview`. Acepta las opciones por defecto.
 
 - El perfil `preview` usa `distribution: internal` y `buildType: apk`, es decir, un APK instalable
   (no un `.aab` de Play Store) y con el bundle de JavaScript incluido: **funciona sin Metro**.
@@ -87,7 +91,7 @@ pero `android/` está en `.gitignore`: se regenera en cada `prebuild`.
 | La app abre pero el login falla con error de red | Se compiló con la IP antigua | Editar `eas.json` y recompilar |
 | “App not installed” | Firma distinta o versión anterior | Desinstalar la app previa |
 | El build falla al instalar dependencias | `pnpm-lock.yaml` desactualizado | `pnpm install` en la raíz y volver a compilar |
-| El build falla por versión de Node | EAS usa la imagen por defecto | Añadir `"node": "22.14.0"` en el perfil o en `eas.json` → `build.preview.node` |
+| El build falla por versión de Node | EAS usa la imagen por defecto (Node 20) y `pnpm@11` exige ≥ 22.13 | Ya está fijado en el perfil `preview` con `"node": "22.14.0"`; si se cambia `packageManager`, revisar ese valor |
 | Se subió el SDK de Expo y ya no abre Expo Go | Expo Go admite un solo SDK | Usar este APK en lugar de Expo Go (ver `13`, §3) |
 
 ## 7. Qué no resuelve este APK

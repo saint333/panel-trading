@@ -9,6 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "build:apk": "pnpm --filter @binomo/mobile build:apk",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose stop postgres",
     "stop:dev": "node scripts/stop-dev.mjs",
