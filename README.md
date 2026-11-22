@@ -51,6 +51,7 @@ pnpm dev
 - App: abre `exp://<IP-de-tu-PC>:8081` en Expo Go (SDK 54). La app toma
   `EXPO_PUBLIC_API_URL` de `apps/mobile/.env`; si la IP del PC cambia, actualízala allí.
 - Parar: `Ctrl+C` y `pnpm db:down`.
+- Prueba en un móvil real: ver [`docs/13-pruebas-en-dispositivo.md`](docs/13-pruebas-en-dispositivo.md).
 
 ## Estructura
 

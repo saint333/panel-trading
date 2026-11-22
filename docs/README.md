@@ -25,6 +25,7 @@ decisiones de arquitectura, alcance y calidad. Toda desviación posterior debe r
 | 10 | [Alcance del MVP](10-alcance-mvp.md) | Qué entra, qué no entra y por qué; criterio de salida del MVP |
 | 11 | [Roadmap de implementación](11-roadmap.md) | Hitos, fases, dependencias, estimaciones y criterios de salida |
 | 12 | [Criterios de aceptación](12-criterios-de-aceptacion.md) | Definition of Done, aceptación por módulo y checklist de release |
+| 13 | [Pruebas en dispositivo](13-pruebas-en-dispositivo.md) | Expo Go, límite de un SDK por versión, problemas frecuentes y qué no se puede probar |
 
 ## Cómo leer esta documentación
 
