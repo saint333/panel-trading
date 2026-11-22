@@ -153,6 +153,12 @@ export class AuthService {
       },
     });
 
+    // Limpieza oportunista: las sesiones caducadas ya no pueden usarse y, sin
+    // esto, cada rotación deja una fila viva durante todo el TTL del refresh.
+    await this.prisma.session.deleteMany({
+      where: { userId: session.userId, expiresAt: { lt: now } },
+    });
+
     const accessToken = await this.tokens.signAccessToken(session.userId, created.id);
 
     return {

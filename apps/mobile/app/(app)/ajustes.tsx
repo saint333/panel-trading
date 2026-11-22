@@ -35,7 +35,7 @@ function isValidTimezone(value: string): boolean {
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { colors, scheme, setPreference } = useTheme();
+  const { colors, scheme, preference, setPreference } = useTheme();
   const { signOut } = useSession();
 
   const [loading, setLoading] = useState(true);
@@ -86,7 +86,7 @@ export default function SettingsScreen() {
     setBusy(true);
 
     try {
-      await updateSettings({ timezone: value, defaultAccountId });
+      await updateSettings({ theme: preference, timezone: value, defaultAccountId });
       setSaved(true);
     } catch (cause) {
       setError(

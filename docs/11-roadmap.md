@@ -95,7 +95,10 @@ sesión (`revokedAt`, `expiresAt`, usuario) en cada petición y tiene pruebas pr
 borraba los tokens ante cualquier fallo al comprobar la sesión inicial, incluido quedarse sin red o
 un 5xx; ahora solo los borra si el servidor rechaza el refresh o el acceso. (4) Ninguna petición
 tiene timeout: se añadió un límite de 15 s para no dejar pantallas en “Cargando…” con una IP
-inalcanzable.
+inalcanzable. También se cerraron los pendientes de la revisión: la preferencia de tema persiste en
+el dispositivo y se guarda en los ajustes del servidor, el refresh purga las sesiones caducadas para
+que la tabla no crezca sin límite, `docker-compose` publica Postgres solo en loopback y Swagger deja
+de exponerse con `NODE_ENV=production`.
 
 **Salida:** un usuario puede crear cuenta, iniciar sesión, crear su cuenta real y verla tras
 reiniciar la app. Pruebas de seguridad de IDOR y refresh.

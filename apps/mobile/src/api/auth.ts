@@ -79,6 +79,7 @@ export interface UserSettings {
 }
 
 export function updateSettings(input: {
+  theme?: 'light' | 'dark' | 'system';
   timezone?: string;
   defaultAccountId?: string | null;
 }): Promise<UserSettings> {

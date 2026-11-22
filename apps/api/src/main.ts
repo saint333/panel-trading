@@ -16,6 +16,8 @@ async function bootstrap(): Promise<void> {
   configureApp(app, {
     version: config.get<string>('API_VERSION') ?? '0.1.0',
     corsOrigins: parseCorsOrigins(config.get<string>('CORS_ORIGINS') ?? ''),
+    // La documentación se publica solo fuera de producción.
+    swagger: config.get<string>('NODE_ENV') !== 'production',
   });
 
   const port = config.get<number>('PORT') ?? 3000;

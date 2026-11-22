@@ -67,6 +67,7 @@ describe('AuthService.refresh', () => {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         create: jest.fn().mockResolvedValue(makeSession({ id: 's2' })),
         update: jest.fn(),
+        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
     } as unknown as PrismaService;
 
@@ -83,6 +84,11 @@ describe('AuthService.refresh', () => {
     expect(result.refreshToken).not.toBe(plainToken);
     expect(result.accessTokenExpiresIn).toBe(900);
     expect(result.accessToken.split('.')).toHaveLength(3);
+
+    // La tabla de sesiones no crece sin límite: se descartan las ya caducadas.
+    expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+      where: { userId: 'u1', expiresAt: { lt: expect.any(Date) } },
+    });
   });
 
   it('revoca todas las sesiones si llega un token ya revocado (reuso)', async () => {
