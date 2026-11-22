@@ -30,6 +30,7 @@ La documentación de producto, arquitectura y decisiones vive en [`docs/`](docs/
   La pantalla de inicio comprueba la API y muestra estados de carga, error y éxito.
 
 Pendiente de M1: build instalable en dispositivo (requiere EAS o un equipo con Android Studio/Xcode).
+El APK ya está configurado: ver [`docs/14-apk-android.md`](docs/14-apk-android.md).
 
 ## Requisitos
 
@@ -58,7 +59,9 @@ pnpm dev
 - App: abre `exp://<IP-de-tu-PC>:8081` en Expo Go (SDK 54). La app toma
   `EXPO_PUBLIC_API_URL` de `apps/mobile/.env`; si la IP del PC cambia, actualízala allí.
 - Parar: `Ctrl+C` y `pnpm db:down`.
-- Prueba en un móvil real: ver [`docs/13-pruebas-en-dispositivo.md`](docs/13-pruebas-en-dispositivo.md).
+- Prueba en un móvil real con Expo Go: ver [`docs/13-pruebas-en-dispositivo.md`](docs/13-pruebas-en-dispositivo.md).
+- APK instalable (sin Metro): `cd apps/mobile && pnpm build:apk`; pasos en
+  [`docs/14-apk-android.md`](docs/14-apk-android.md).
 
 ## Estructura
 

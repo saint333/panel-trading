@@ -10,10 +10,12 @@
     "ios": "expo start --ios",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "build": "echo \"El build nativo se ejecuta con EAS (ver docs/11-roadmap.md)\""
+    "build": "echo \"El build nativo se ejecuta con EAS (ver docs/14-apk-android.md)\"",
+    "build:apk": "npx --yes eas-cli@latest build --platform android --profile preview"
   },
   "dependencies": {
     "expo": "~54.0.38",
+    "expo-build-properties": "~1.0.10",
     "expo-constants": "~18.0.10",
     "expo-linking": "~8.0.9",
     "expo-router": "~6.0.24",
