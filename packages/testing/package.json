@@ -1,0 +1,23 @@
+{
+  "name": "@binomo/testing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fixtures deterministas para pruebas",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@binomo/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "5.9.3"
+  }
+}

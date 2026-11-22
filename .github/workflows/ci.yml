@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://binomo:binomo@localhost:5432/binomo?schema=public
+
+jobs:
+  verify:
+    name: Lint, tipos, pruebas y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: binomo
+          POSTGRES_PASSWORD: binomo
+          POSTGRES_DB: binomo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U binomo -d binomo"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Activar pnpm
+        run: corepack enable
+
+      - name: Obtener versión de pnpm
+        id: pnpm-version
+        run: echo "version=$(node -p "require('./package.json').packageManager.split('@')[1]")" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ steps.pnpm-version.outputs.version }}
+
+      - name: Cache de pnpm
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Generar cliente Prisma
+        run: pnpm --filter @binomo/api prisma:generate
+
+      - name: Aplicar migraciones desde cero
+        run: pnpm --filter @binomo/api exec prisma migrate deploy
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Comprobar tipos
+        run: pnpm typecheck
+
+      - name: Pruebas
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  secrets:
+    name: Escaneo de secretos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

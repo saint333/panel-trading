@@ -1,0 +1,402 @@
+// Binomo Analytics — modelo de datos del MVP
+// Dinero: BigInt en unidades menores. Tiempo: UTC (timestamptz).
+// Nunca se guardan credenciales, cookies ni tokens de Binomo.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TradeResult {
+  WIN
+  LOSS
+  DRAW
+  CANCELLED
+  OPEN
+}
+
+enum TradeDirection {
+  CALL
+  PUT
+}
+
+enum AccountType {
+  REAL
+  DEMO
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  ADJUSTMENT
+  COMMISSION
+  BONUS
+  CORRECTION
+}
+
+enum TradeSource {
+  MANUAL
+  CSV
+  XLSX
+  API
+}
+
+enum MovementSource {
+  MANUAL
+  IMPORT
+}
+
+enum ImportStatus {
+  PREVIEW
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AttachmentKind {
+  SCREENSHOT
+  OTHER
+}
+
+enum FeedbackPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum AlertType {
+  DAILY_LOSS
+  LOSS_STREAK
+  UNUSUAL_SIZE
+  SIZE_AFTER_LOSS
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique @db.VarChar(254)
+  passwordHash    String    @map("password_hash") @db.VarChar(255)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(3)
+  timezone        String    @default("UTC") @db.VarChar(64)
+  locale          String    @default("es") @db.VarChar(10)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(3)
+
+  settings         UserSettings?
+  accounts         Account[]
+  trades           Trade[]
+  transactions     Transaction[]
+  strategies       Strategy[]
+  journalEntries   JournalEntry[]
+  tags             Tag[]
+  attachments      Attachment[]
+  importBatches    ImportBatch[]
+  feedbackReports  FeedbackReport[]
+  balanceSnapshots BalanceSnapshot[]
+  alertRules       AlertRule[]
+  alertEvents      AlertEvent[]
+  sessions         Session[]
+
+  @@map("users")
+}
+
+model UserSettings {
+  userId           String   @id @map("user_id") @db.Uuid
+  theme            String   @default("system") @db.VarChar(10)
+  weekStartsOn     Int      @default(1) @map("week_starts_on")
+  defaultAccountId String?  @map("default_account_id") @db.Uuid
+  notifyDaily      Boolean  @default(false) @map("notify_daily")
+  notifyWeekly     Boolean  @default(false) @map("notify_weekly")
+  quietHoursStart  Int?     @map("quiet_hours_start")
+  quietHoursEnd    Int?     @map("quiet_hours_end")
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model Account {
+  id                    String       @id @default(uuid()) @db.Uuid
+  userId                String       @map("user_id") @db.Uuid
+  name                  String       @db.VarChar(80)
+  type                  AccountType
+  currency              String       @db.Char(3)
+  openingBalanceMinor   BigInt       @default(0) @map("opening_balance_minor")
+  confirmedBalanceMinor BigInt?      @map("confirmed_balance_minor")
+  confirmedAt           DateTime?    @map("confirmed_at") @db.Timestamptz(3)
+  archivedAt            DateTime?    @map("archived_at") @db.Timestamptz(3)
+  createdAt             DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades         Trade[]
+  transactions   Transaction[]
+  snapshots      BalanceSnapshot[]
+  importBatches  ImportBatch[]
+
+  @@unique([userId, name])
+  @@index([userId, archivedAt])
+  @@map("accounts")
+}
+
+model Strategy {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  name      String    @db.VarChar(80)
+  notes     String?   @db.VarChar(2000)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades Trade[]
+
+  @@unique([userId, name])
+  @@map("strategies")
+}
+
+model Trade {
+  id                String         @id @default(uuid()) @db.Uuid
+  userId            String         @map("user_id") @db.Uuid
+  accountId         String         @map("account_id") @db.Uuid
+  strategyId        String?        @map("strategy_id") @db.Uuid
+  externalId        String?        @map("external_id") @db.VarChar(128)
+  fingerprint       String?        @db.Char(64)
+  assetSymbol       String         @map("asset_symbol") @db.VarChar(20)
+  direction         TradeDirection
+  stakeMinor        BigInt         @map("stake_minor")
+  payoutBps         Int            @map("payout_bps")
+  result            TradeResult
+  openedAt          DateTime       @map("opened_at") @db.Timestamptz(3)
+  expiresAt         DateTime       @map("expires_at") @db.Timestamptz(3)
+  durationSeconds   Int            @map("duration_seconds")
+  netPnlMinor       BigInt         @map("net_pnl_minor")
+  balanceAfterMinor BigInt?        @map("balance_after_minor")
+  source            TradeSource    @default(MANUAL)
+  notes             String?        @db.VarChar(2000)
+  version           Int            @default(1)
+  deletedAt         DateTime?      @map("deleted_at") @db.Timestamptz(3)
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account        Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  strategy       Strategy?       @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  journalEntry   JournalEntry?
+  attachments    Attachment[]
+  tags           TradeTag[]
+
+  @@unique([accountId, externalId])
+  @@unique([accountId, fingerprint])
+  @@index([userId, expiresAt])
+  @@index([accountId, expiresAt])
+  @@index([userId, result, expiresAt])
+  @@index([userId, assetSymbol])
+  @@map("trades")
+}
+
+model Transaction {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @map("user_id") @db.Uuid
+  accountId   String           @map("account_id") @db.Uuid
+  type        TransactionType
+  amountMinor BigInt           @map("amount_minor")
+  occurredAt  DateTime         @map("occurred_at") @db.Timestamptz(3)
+  source      MovementSource   @default(MANUAL)
+  notes       String?          @db.VarChar(2000)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([accountId, occurredAt])
+  @@map("transactions")
+}
+
+model JournalEntry {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  tradeId       String   @unique @map("trade_id") @db.Uuid
+  content       String   @db.Text
+  respectedPlan Boolean? @map("respected_plan")
+  emotions      String[] @default([])
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("journal_entries")
+}
+
+model Tag {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  name      String   @db.VarChar(40)
+  color     String   @default("#64748b") @db.VarChar(9)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tradeTags TradeTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model TradeTag {
+  tradeId String @map("trade_id") @db.Uuid
+  tagId   String @map("tag_id") @db.Uuid
+
+  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tradeId, tagId])
+  @@map("trade_tags")
+}
+
+model Attachment {
+  id             String         @id @default(uuid()) @db.Uuid
+  userId         String         @map("user_id") @db.Uuid
+  tradeId        String?        @map("trade_id") @db.Uuid
+  journalEntryId String?        @map("journal_entry_id") @db.Uuid
+  kind           AttachmentKind @default(SCREENSHOT)
+  storageKey     String         @map("storage_key") @db.VarChar(512)
+  mimeType       String         @map("mime_type") @db.VarChar(100)
+  sizeBytes      Int            @map("size_bytes")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trade Trade? @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([tradeId])
+  @@map("attachments")
+}
+
+model ImportBatch {
+  id             String       @id @default(uuid()) @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  accountId      String       @map("account_id") @db.Uuid
+  fileName       String       @map("file_name") @db.VarChar(255)
+  fileChecksum   String       @map("file_checksum") @db.Char(64)
+  status         ImportStatus @default(PREVIEW)
+  totalRows      Int          @default(0) @map("total_rows")
+  importedRows   Int          @default(0) @map("imported_rows")
+  duplicateRows  Int          @default(0) @map("duplicate_rows")
+  errorRows      Int          @default(0) @map("error_rows")
+  mapping        Json?
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt    DateTime?    @map("completed_at") @db.Timestamptz(3)
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  errors  ImportRowError[]
+
+  @@index([userId, createdAt])
+  @@map("import_batches")
+}
+
+model ImportRowError {
+  id        String  @id @default(uuid()) @db.Uuid
+  batchId   String  @map("batch_id") @db.Uuid
+  rowNumber Int     @map("row_number")
+  message   String  @db.VarChar(500)
+  rawRow    Json?   @map("raw_row")
+
+  batch ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId])
+  @@map("import_row_errors")
+}
+
+model FeedbackReport {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @map("user_id") @db.Uuid
+  period          FeedbackPeriod
+  periodStart     DateTime       @map("period_start") @db.Timestamptz(3)
+  periodEnd       DateTime       @map("period_end") @db.Timestamptz(3)
+  metricsSnapshot Json           @map("metrics_snapshot")
+  content         Json
+  promptVersion   String         @map("prompt_version") @db.VarChar(20)
+  model           String         @db.VarChar(80)
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, periodStart])
+  @@map("feedback_reports")
+}
+
+model BalanceSnapshot {
+  id                     String   @id @default(uuid()) @db.Uuid
+  userId                 String   @map("user_id") @db.Uuid
+  accountId              String   @map("account_id") @db.Uuid
+  confirmedBalanceMinor  BigInt   @map("confirmed_balance_minor")
+  calculatedBalanceMinor BigInt   @map("calculated_balance_minor")
+  differenceMinor        BigInt   @map("difference_minor")
+  note                   String?  @db.VarChar(500)
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt])
+  @@map("balance_snapshots")
+}
+
+model AlertRule {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  type           AlertType
+  thresholdMinor BigInt?   @map("threshold_minor")
+  streakLength   Int?      @map("streak_length")
+  enabled        Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events AlertEvent[]
+
+  @@index([userId, enabled])
+  @@map("alert_rules")
+}
+
+model AlertEvent {
+  id             String    @id @default(uuid()) @db.Uuid
+  ruleId         String    @map("rule_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  triggeredAt    DateTime  @default(now()) @map("triggered_at") @db.Timestamptz(3)
+  payload        Json?
+  acknowledgedAt DateTime? @map("acknowledged_at") @db.Timestamptz(3)
+
+  rule AlertRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, triggeredAt])
+  @@map("alert_events")
+}
+
+model Session {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(128)
+  userAgent        String?   @map("user_agent") @db.VarChar(255)
+  ipHash           String?   @map("ip_hash") @db.VarChar(64)
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  lastUsedAt       DateTime? @map("last_used_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@map("sessions")
+}

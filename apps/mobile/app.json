@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Binomo Analytics",
+    "slug": "binomo-analytics",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "binomoanalytics",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.binomoanalytics.app"
+    },
+    "android": {
+      "package": "com.binomoanalytics.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:3000"
+    }
+  }
+}
