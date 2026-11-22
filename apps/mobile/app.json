@@ -15,9 +15,6 @@
       "package": "com.binomoanalytics.app"
     },
     "plugins": ["expo-router", "expo-secure-store"],
-    "experiments": {
-      "typedRoutes": true
-    },
     "extra": {
       "apiUrl": "http://localhost:3000"
     }

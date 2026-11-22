@@ -20,7 +20,7 @@ function RootNavigator() {
     if (status === 'signedOut' && !inAuthGroup) {
       router.replace('/login');
     } else if (status === 'signedIn' && inAuthGroup) {
-      router.replace('/(app)/index');
+      router.replace('/');
     }
   }, [status, inAuthGroup, router]);
 
