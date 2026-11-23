@@ -20,12 +20,8 @@ un VPS.
 
 ## 2. Antes de empezar: el repositorio en GitHub
 
-Render despliega desde GitHub. Este repositorio **todavía no tiene remoto**:
-
-```bash
-git remote add origin https://github.com/<tu-usuario>/<tu-repo>.git
-git push -u origin master
-```
+Render despliega desde GitHub. El repositorio ya está publicado en `origin`
+(`github.com/saint333/panel-trading`) con la rama **`main`**, que es la que usa el blueprint.
 
 > Si el repo es privado, autoriza a Render para leerlo desde *Account Settings → GitHub*.
 
