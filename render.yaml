@@ -1,0 +1,50 @@
+# Infraestructura de la API en Render (Blueprint / IaC).
+# Guía paso a paso: docs/15-despliegue-render.md
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+
+services:
+  - type: web
+    name: binomo-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: master
+    autoDeployTrigger: commit
+    healthCheckPath: /health
+    # Solo reconstruye cuando cambia algo de la API o de los paquetes compartidos.
+    buildFilter:
+      paths:
+        - apps/api/**
+        - packages/**
+        - package.json
+        - pnpm-lock.yaml
+        - pnpm-workspace.yaml
+        - tsconfig.base.json
+    # Render trae una versión de pnpm anterior a la del repo; se instala la
+    # fijada en `packageManager` para que el lockfile sea compatible.
+    buildCommand: >-
+      npm install -g pnpm@11.24.0 &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @binomo/domain build &&
+      pnpm --filter @binomo/contracts build &&
+      pnpm --filter @binomo/api exec prisma generate &&
+      pnpm --filter @binomo/api build
+    # Las migraciones NO se ejecutan aquí: `preDeployCommand` solo existe en planes
+    # de pago. En el plan gratuito se lanzan a mano contra Neon (ver docs/15).
+    # Si pasas a un plan de pago, añade:
+    #   preDeployCommand: pnpm --filter @binomo/api exec prisma migrate deploy
+    # NODE_ENV se fija en el arranque, no como variable global: así el build
+    # conserva las devDependencies (tsc, prisma CLI) que necesita.
+    startCommand: NODE_ENV=production node apps/api/dist/main.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      # Cadena de conexión DIRECTA de Neon (sin "-pooler"), con sslmode=require.
+      # Se pega en el panel de Render; nunca en el repositorio.
+      - key: DATABASE_URL
+        sync: false
+      # Render genera secretos aleatorios válidos (≥ 32 y ≥ 16 caracteres).
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: IP_HASH_SECRET
+        generateValue: true

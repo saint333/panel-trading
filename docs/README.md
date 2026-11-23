@@ -27,6 +27,7 @@ decisiones de arquitectura, alcance y calidad. Toda desviación posterior debe r
 | 12 | [Criterios de aceptación](12-criterios-de-aceptacion.md) | Definition of Done, aceptación por módulo y checklist de release |
 | 13 | [Pruebas en dispositivo](13-pruebas-en-dispositivo.md) | Expo Go, límite de un SDK por versión, problemas frecuentes y qué no se puede probar |
 | 14 | [APK de Android](14-apk-android.md) | Compilar con EAS, descargar e instalar el APK, URL de la API incrustada y problemas frecuentes |
+| 15 | [Despliegue en Render + Neon](15-despliegue-render.md) | API en HTTPS con plan gratuito: blueprint, variables de entorno, migraciones y cómo apuntar el APK al dominio |
 
 ## Cómo leer esta documentación
 

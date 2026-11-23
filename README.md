@@ -62,6 +62,8 @@ pnpm dev
 - Prueba en un móvil real con Expo Go: ver [`docs/13-pruebas-en-dispositivo.md`](docs/13-pruebas-en-dispositivo.md).
 - APK instalable (sin Metro): `cd apps/mobile && pnpm build:apk`; pasos en
   [`docs/14-apk-android.md`](docs/14-apk-android.md).
+- API pública con HTTPS (plan gratuito): blueprint `render.yaml` + Postgres de Neon, pasos en
+  [`docs/15-despliegue-render.md`](docs/15-despliegue-render.md).
 
 ## Estructura
 

@@ -98,5 +98,5 @@ pero `android/` está en `.gitignore`: se regenera en cada `prebuild`.
 
 - Publicación en Play Store (requiere `.aab`, firma de producción y ficha de tienda — M8).
 - Uso fuera de la red local: mientras la API no esté desplegada con HTTPS, el APK solo funciona en la
-  Wi‑Fi del PC que la ejecuta.
+  Wi‑Fi del PC que la ejecuta. El despliegue está en [`15-despliegue-render.md`](15-despliegue-render.md).
 - Icono/splash definitivos y actualizaciones OTA (EAS Update), que no forman parte de M2.
