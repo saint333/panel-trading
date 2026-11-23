@@ -11,7 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://192.168.15.17:3000"
+        "EXPO_PUBLIC_API_URL": "https://binomo-api.onrender.com"
       }
     },
     "production": {

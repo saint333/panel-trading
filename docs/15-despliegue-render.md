@@ -117,7 +117,7 @@ un rato sin uso puede tardar en responder (spin-down de Render).
 
 ## 8. Actualizaciones y migraciones futuras
 
-- **Código:** `git push` a `master` → Render reconstruye solo (filtrado por `buildFilter`).
+- **Código:** `git push` a `main` → Render reconstruye solo (filtrado por `buildFilter`).
 - **Esquema:** al añadir una migración, ejecuta el comando del §4 contra Neon **antes** de que el
   nuevo código quede activo. En plan gratuito no hay migración automática; si contratas un plan de
   pago, descomenta `preDeployCommand` en `render.yaml`.
