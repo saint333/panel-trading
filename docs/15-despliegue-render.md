@@ -152,18 +152,35 @@ Cuando la API responda:
    "plugins": ["expo-router", "expo-secure-store"]
    ```
 
-3. Recompila: `pnpm build:apk`. El APK anterior seguirá apuntando a la IP de la Wi‑Fi.
+3. Recompila: `pnpm build:apk`. El APK anterior seguirá apuntando a la IP de la Wi‑Fi. Para listar
+   builds y descargar el último: `npx --yes eas-cli@latest build:list --limit 3`.
 
 A partir de ahí la app funciona en cualquier red. Con el plan gratuito, la primera petición tras
 un rato sin uso puede tardar en responder (spin-down de Render).
 
-## 8. Actualizaciones y migraciones futuras
+## 8. Qué se despliega con cada push
 
-- **Código:** `git push` a `main` → Render reconstruye solo (filtrado por `buildFilter`).
-- **Esquema:** el workflow del §4.3 lo aplica solo al empujar una migración nueva. Si aún no has
-  configurado el secreto, ejecuta `pnpm db:migrate:neon` a mano antes de que el código nuevo quede
-  activo. En plan gratuito no hay `preDeployCommand`; si contratas un plan de pago, descomenta esa
-  línea en `render.yaml`.
+Un `git push` a `main` no despliega todo por igual. Esto es lo que se actualiza solo:
+
+| Pieza | ¿Se actualiza con el push? | Disparador |
+|---|---|---|
+| **CI** (lint, tipos, pruebas, build) | Sí, siempre | Cualquier push a `main` o PR |
+| **Migraciones en Neon** | Sí, solo si cambia el esquema | Rutas de `apps/api/prisma/**` (o *Run workflow* manual) |
+| **API en Render** | Sí, si cambia la API o lo compartido | `buildFilter` de [`render.yaml`](../render.yaml): `apps/api/**`, `packages/**`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tsconfig.base.json` |
+| **APK de Android** | **No** | Compilar e instalar a mano (§7.3). Los cambios de JavaScript sí llegan por OTA ([`14`, §6](14-apk-android.md)) |
+
+Consecuencias prácticas:
+
+- Tocar solo `docs/` o `README.md` **no** reconstruye Render: se salta el build que no aporta nada.
+- Un push **no** compila el APK. Si cambias solo JavaScript de `apps/mobile`, publícalo con
+  `pnpm --filter @binomo/mobile update:preview` y llega por OTA. Si cambias algo nativo (dependencia,
+  permiso, icono) o la `version`, toca `pnpm build:apk` y reinstalar (`autoIncrement: true` sube el
+  `versionCode` en cada build).
+- El workflow de migraciones y el deploy de Render arrancan a la vez; el build de Render tarda
+  minutos y la migración segundos, así que el esquema suele estar listo antes de que el código nuevo
+  reciba tráfico. Aun así, mantén las migraciones **compatibles hacia atrás**.
+- En plan gratuito no hay `preDeployCommand`; si contratas un plan de pago, descomenta esa línea en
+  `render.yaml`.
 - **Secretos:** cambiarlos en *Environment* del servicio reinicia el servicio y, en el caso del JWT,
   invalida las sesiones existentes (la app pedirá login de nuevo).
 

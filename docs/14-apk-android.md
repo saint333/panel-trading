@@ -97,7 +97,37 @@ npx expo run:android --variant release
 El `.apk` queda en `apps/mobile/android/app/build/outputs/apk/release/`. Es más rápido para iterar,
 pero `android/` está en `.gitignore`: se regenera en cada `prebuild`.
 
-## 6. Problemas frecuentes
+## 6. Actualizaciones sin reinstalar (EAS Update)
+
+El APK incluye `expo-updates` y apunta al canal `preview`. Los cambios de JavaScript (pantallas,
+textos, estilos, llamadas a la API) se publican como *update* y llegan solos:
+
+```bash
+cd apps/mobile
+pnpm update:preview
+```
+
+Cómo se comporta en el móvil:
+
+1. Al abrir la app, consulta si hay un update publicado.
+2. Si lo hay, lo descarga **en segundo plano** con el bundle actual funcionando.
+3. El update se aplica al **siguiente arranque** (o al hacer *force close* y volver a abrir).
+
+Qué **no** cubre un update: añadir una dependencia nativa, cambiar permisos, el icono, el splash o el
+`versionCode`. Para eso hace falta recompilar el APK (`pnpm build:apk`) e instalarlo.
+
+- `app.json` usa `runtimeVersion: { policy: "appVersion" }`: los updates solo se aplican al APK cuya
+  `version` coincide (`0.1.0`). Si subes `version`, cada APK recibe solo sus propios updates.
+- `eas.json` usa `autoIncrement: true` en `preview`, así que **cada build sube el `versionCode`**
+  (compruébalo con `npx eas-cli build:version:get -p android --profile preview`).
+- Listar lo publicado: `npx --yes eas-cli@latest update:list --branch preview`.
+- Para volver atrás, publica de nuevo el commit anterior con `--republish`, o usa *Rollback* en el
+  panel de Expo.
+
+> El plan gratuito de EAS Update incluye descargas limitadas al mes para uso interno; si algún día
+> distribuyes a mucha gente, revisa el límite antes.
+
+## 7. Problemas frecuentes
 
 | Síntoma | Causa | Solución |
 |---|---|---|
@@ -107,10 +137,11 @@ pero `android/` está en `.gitignore`: se regenera en cada `prebuild`.
 | El build falla al instalar dependencias | `pnpm-lock.yaml` desactualizado | `pnpm install` en la raíz y volver a compilar |
 | El build falla por versión de Node | EAS usa la imagen por defecto (Node 20) y `pnpm@11` exige ≥ 22.13 | Ya está fijado en el perfil `preview` con `"node": "22.14.0"`; si se cambia `packageManager`, revisar ese valor |
 | Se subió el SDK de Expo y ya no abre Expo Go | Expo Go admite un solo SDK | Usar este APK en lugar de Expo Go (ver `13`, §3) |
+| `pnpm update:preview` no llega al móvil | El APK instalado es anterior a `expo-updates` o de otro canal | Instala el APK compilado después de añadir OTA; comprueba el canal con `update:list` |
+| La app ignora el update publicado | Cambió `version` (política `appVersion`) | Publica con la `version` del APK instalado o compila uno nuevo |
 
-## 7. Qué no resuelve este APK
+## 8. Qué no resuelve este APK
 
 - Publicación en Play Store (requiere `.aab`, firma de producción y ficha de tienda — M8).
-- Uso fuera de la red local: mientras la API no esté desplegada con HTTPS, el APK solo funciona en la
-  Wi‑Fi del PC que la ejecuta. El despliegue está en [`15-despliegue-render.md`](15-despliegue-render.md).
-- Icono/splash definitivos y actualizaciones OTA (EAS Update), que no forman parte de M2.
+- Icono y splash definitivos.
+- Despliegue de la API: ver [`15-despliegue-render.md`](15-despliegue-render.md).
