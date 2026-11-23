@@ -82,18 +82,19 @@ Regla: **la lógica financiera solo existe en `packages/domain`**. Ni la API ni 
 
 ## Comandos
 
-| Comando            | Qué hace                                |
-| ------------------ | --------------------------------------- |
-| `pnpm build`       | Compila todos los paquetes              |
-| `pnpm typecheck`   | TypeScript estricto en todo el monorepo |
-| `pnpm lint`        | ESLint                                  |
-| `pnpm test`        | Pruebas (dominio y API)                 |
-| `pnpm test:domain` | Solo dominio, con cobertura             |
-| `pnpm dev`         | API y app a la vez, con recarga         |
-| `pnpm db:up`       | Levanta PostgreSQL en Docker            |
-| `pnpm db:down`     | Para PostgreSQL                         |
-| `pnpm stop:dev`    | Libera los puertos 3000 y 8081          |
-| `pnpm format`      | Prettier                                |
+| Comando                | Qué hace                                |
+| ---------------------- | --------------------------------------- |
+| `pnpm build`           | Compila todos los paquetes              |
+| `pnpm typecheck`       | TypeScript estricto en todo el monorepo |
+| `pnpm lint`            | ESLint                                  |
+| `pnpm test`            | Pruebas (dominio y API)                 |
+| `pnpm test:domain`     | Solo dominio, con cobertura             |
+| `pnpm dev`             | API y app a la vez, con recarga         |
+| `pnpm db:up`           | Levanta PostgreSQL en Docker            |
+| `pnpm db:down`         | Para PostgreSQL                         |
+| `pnpm db:migrate:neon` | Migra la base de Neon (ver doc 15)      |
+| `pnpm stop:dev`        | Libera los puertos 3000 y 8081          |
+| `pnpm format`          | Prettier                                |
 
 ## Decisiones que no se negocian
 

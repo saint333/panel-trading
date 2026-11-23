@@ -1,0 +1,54 @@
+name: Migraciones
+
+# Render no permite `preDeployCommand` en el plan gratuito, así que las
+# migraciones se aplican aquí, contra Neon, cuando cambia el esquema.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/prisma/**'
+      - 'scripts/neon-migrate.mjs'
+      - '.github/workflows/migrate.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: neon-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Aplicar migraciones en Neon
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Obtener versión de pnpm
+        id: pnpm-version
+        run: echo "version=$(node -p "require('./package.json').packageManager.split('@')[1]")" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ steps.pnpm-version.outputs.version }}
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Comprobar el secreto
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "Falta el secreto NEON_DATABASE_URL (Settings → Secrets and variables → Actions)." >&2
+            exit 1
+          fi
+
+      - name: Aplicar migraciones
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: pnpm db:migrate:neon

@@ -14,7 +14,7 @@
 El APK **no incluye la API ni la base de datos**: la app sigue necesitando el servidor NestJS en marcha
 y accesible desde el móvil.
 
-## 2. Antes de compilar: la IP de la API
+## 2. Antes de compilar: la URL de la API
 
 La URL de la API se **incrusta en el APK al compilar**. `apps/mobile/.env` no se sube a EAS (está en
 `.gitignore`), así que el valor que cuenta es `EXPO_PUBLIC_API_URL` del perfil `preview` en
@@ -22,20 +22,34 @@ La URL de la API se **incrusta en el APK al compilar**. `apps/mobile/.env` no se
 
 ```json
 "env": {
-  "EXPO_PUBLIC_API_URL": "http://192.168.15.17:3000"
+  "EXPO_PUBLIC_API_URL": "https://binomo-api.onrender.com"
 }
 ```
 
-1. En este equipo ya está puesta la IPv4 de la Wi‑Fi (`192.168.15.17`); `extra.apiUrl` de `app.json`
-   usa el mismo valor como respaldo. Si cambias de red, sustituye la IP por la que muestre
-   `ipconfig` en Windows → *Dirección IPv4* (y actualiza también `apps/mobile/.env`).
-2. El móvil y el PC deben estar en la **misma Wi‑Fi** (las redes de invitados aíslan clientes).
-3. Permite `node.exe` en el Firewall de Windows para redes privadas y comprueba desde el navegador
-   del móvil que `http://<IP>:3000/health` responde.
-4. Arranca la API con `pnpm db:up && pnpm dev` (o solo `pnpm --filter @binomo/api dev`).
+Hoy apunta a la API desplegada en Render (ver [`15-despliegue-render.md`](15-despliegue-render.md)),
+así que el APK funciona en cualquier red.
 
-El APK permite HTTP sin cifrar (`usesCleartextTraffic`) solo para probar contra la API local. En
-producción la API debe ir por HTTPS y esa opción debe quitarse de `app.json`.
+Si vuelves a probar contra la API de tu PC (solo en la Wi‑Fi local), cambia ese valor por
+`http://<IPv4-del-PC>:3000`, actualiza también `extra.apiUrl` en `app.json` y añade el plugin
+`expo-build-properties` con `usesCleartextTraffic: true`; Android bloquea HTTP en claro sin él:
+
+```json
+"plugins": [
+  "expo-router",
+  "expo-secure-store",
+  ["expo-build-properties", { "android": { "usesCleartextTraffic": true } }]
+]
+```
+
+Para el modo local necesitas además:
+
+1. La IPv4 que muestre `ipconfig` en Windows → *Dirección IPv4* (y actualizar `apps/mobile/.env`).
+2. El móvil y el PC en la **misma Wi‑Fi** (las redes de invitados aíslan clientes).
+3. `node.exe` permitido en el Firewall de Windows para redes privadas, y comprobar desde el navegador
+   del móvil que `http://<IP>:3000/health` responde.
+4. La API en marcha: `pnpm db:up && pnpm dev`.
+
+En producción la API va por HTTPS y el APK **no** incluye `usesCleartextTraffic`.
 
 ## 3. Compilar el APK (EAS, ~10–15 min la primera vez)
 

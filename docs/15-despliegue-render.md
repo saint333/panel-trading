@@ -39,17 +39,59 @@ Render despliega desde GitHub. El repositorio ya está publicado en `origin`
    y `prisma migrate` no funciona bien a través del pooler.
 3. Guarda esa URL como `DATABASE_URL`.
 
-## 4. Aplicar las migraciones (antes del primer deploy)
+## 4. Aplicar las migraciones
 
-Con la base vacía hay que crear el esquema. Desde la raíz del repo:
+Con la base vacía hay que crear el esquema. El repo trae un script que lee la cadena de un archivo
+ignorado por git, así que **no queda en el historial del shell**.
+
+### 4.1 Con el script (recomendado)
+
+1. Crea `apps/api/.env.neon` con una sola línea (`.env.*` está en `.gitignore`, nunca se commitea):
+
+   ```
+   DATABASE_URL="postgresql://usuario:clave@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require"
+   ```
+
+2. Ejecuta desde la raíz:
+
+   ```bash
+   pnpm db:migrate:neon
+   ```
+
+El script imprime **solo** la base y el host (nunca la cadena), rechaza las URL con `-pooler` o sin
+`sslmode=require`, y termina con `All migrations have been successfully applied` (o
+`No pending migrations to apply` si ya estaban).
+
+### 4.2 Con la variable en línea
+
+Si prefieres no crear el archivo:
 
 ```bash
 DATABASE_URL="postgresql://usuario:clave@ep-xxxx.../neondb?sslmode=require" \
   pnpm --filter @binomo/api prisma:deploy
 ```
 
-Debe imprimir `All migrations have been successfully applied`. Si te equivocas de base, borra el
-proyecto en Neon y repite: no hay `migrate reset` contra producción.
+En este caso la cadena queda en el historial del shell y en la lista de procesos.
+
+Si te equivocas de base, borra el proyecto en Neon y repite: no hay `migrate reset` contra
+producción.
+
+### 4.3 Automático en cada push a `main`
+
+[`.github/workflows/migrate.yml`](../.github/workflows/migrate.yml) aplica las migraciones pendientes
+cuando un push a `main` toca `apps/api/prisma/**` (o al lanzarlo a mano desde *Actions*). Configúralo
+una sola vez:
+
+1. GitHub → *Settings → Secrets and variables → Actions → New repository secret*.
+2. Nombre `NEON_DATABASE_URL`, valor: la misma cadena directa de Neon.
+
+Así el esquema se actualiza sin tocar tu equipo. Es la alternativa gratuita a `preDeployCommand`,
+que Render solo ofrece en planes de pago.
+
+> El workflow y el deploy de Render arrancan a la vez. En la práctica el build de Render tarda varios
+> minutos y la migración unos segundos, así que el esquema nuevo suele estar listo antes de que el
+> código nuevo reciba tráfico. Mantén las migraciones **compatibles hacia atrás** (añadir columnas
+> antes de usarlas) para que un solapamiento no rompa nada.
 
 ## 5. Crear el servicio en Render
 
@@ -118,9 +160,10 @@ un rato sin uso puede tardar en responder (spin-down de Render).
 ## 8. Actualizaciones y migraciones futuras
 
 - **Código:** `git push` a `main` → Render reconstruye solo (filtrado por `buildFilter`).
-- **Esquema:** al añadir una migración, ejecuta el comando del §4 contra Neon **antes** de que el
-  nuevo código quede activo. En plan gratuito no hay migración automática; si contratas un plan de
-  pago, descomenta `preDeployCommand` en `render.yaml`.
+- **Esquema:** el workflow del §4.3 lo aplica solo al empujar una migración nueva. Si aún no has
+  configurado el secreto, ejecuta `pnpm db:migrate:neon` a mano antes de que el código nuevo quede
+  activo. En plan gratuito no hay `preDeployCommand`; si contratas un plan de pago, descomenta esa
+  línea en `render.yaml`.
 - **Secretos:** cambiarlos en *Environment* del servicio reinicia el servicio y, en el caso del JWT,
   invalida las sesiones existentes (la app pedirá login de nuevo).
 
@@ -131,7 +174,8 @@ un rato sin uso puede tardar en responder (spin-down de Render).
 | Build falla con `ERR_PNPM_UNSUPPORTED_ENGINE` o pide Node ≥ 22.13 | Render usó otra versión de Node | Mantener `NODE_VERSION=22.14.0` en `render.yaml` |
 | `ERR_PNPM_BAD_PM_VERSION` o el lockfile “no es compatible” | La pnpm global de Render no coincide con `packageManager` | La versión se fija en el `buildCommand`; si cambias `packageManager`, actualízala ahí también |
 | `Cannot find module '@binomo/domain'` / `'@binomo/contracts'` | Se compiló la API sin construir los paquetes | Respetar el orden del `buildCommand` |
-| `The table public.users does not exist` (P2021) | No se aplicaron las migraciones | Ejecutar el §4 y redesplegar |
+| `The table public.users does not exist` (P2021) | No se aplicaron las migraciones | Ejecutar el §4 (o revisar el workflow del §4.3) y redesplegar |
+| El login devuelve `500` en vez de `401` | La tabla existe pero falta esa migración | Mismo caso: `pnpm db:migrate:neon` |
 | `Can't reach database server` / error de certificado | URL con `-pooler` o sin `sslmode=require` | Usar la cadena directa de Neon |
 | `Application failed to respond` | El proceso no escucha en `PORT` o murió al arrancar | Revisar *Logs*; la API ya usa `PORT` inyectado |
 | Primera petición de la mañana tarda ~1 min | Spin-down del plan gratuito | Aceptarlo o pasar a plan de pago |

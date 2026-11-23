@@ -12,6 +12,7 @@
     "build:apk": "pnpm --filter @binomo/mobile build:apk",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose stop postgres",
+    "db:migrate:neon": "node scripts/neon-migrate.mjs",
     "stop:dev": "node scripts/stop-dev.mjs",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
